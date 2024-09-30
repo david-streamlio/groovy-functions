@@ -1,0 +1,21 @@
+##################################
+# Deployment
+##################################
+className: io.streamnative.sources.GroovyScriptSource
+tenant: public
+namespace: default
+name: groovy-script-source
+topicName: persistent://public/default/groovy-scripts
+outputSchemaType: STRING
+configs:
+
+
+##################################
+# Processing
+##################################
+processingGuarantees: AT_MOST_ONCE
+schemaType: STRING
+logTopic: persistent://public/default/groovy-script-source-log
+retainOrdering: true
+subName: router-sub
+cleanupSubscription: true

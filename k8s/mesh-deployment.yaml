@@ -1,0 +1,59 @@
+apiVersion: compute.functionmesh.io/v1alpha1
+kind: FunctionMesh
+metadata:
+  name: groovy-function
+spec:
+  functions:
+    - name: groovy-script-executor
+      image: localhost:32000/dynamic-groovy-script-executor:0.0.1
+      className: io.streamnative.functions.groovy.GroovyVersionScriptExecutorFunction
+      forwardSourceMessageProperty: true
+      maxPendingAsyncRequests: 100
+      replicas: 1
+      maxReplicas: 5
+      logTopic: "persistent://public/default/groovy-script-executor-log"
+      input:
+        topics:
+          - "persistent://public/default/groovy-scripts"
+        typeClassName: java.lang.String
+      output:
+        topic: "persistent://public/default/groovy-script-results"
+        typeClassName: java.lang.String
+      resources:
+        requests:
+          cpu: "0.1"
+          memory: 1G
+        limits:
+          cpu: "0.2"
+          memory: 1.1G
+      pulsar:
+        pulsarConfig: "pulsar"
+      volumeMounts:
+        - mountPath: /cache
+          name: cache-volume
+      pod:
+        env:
+          - name: EXAMPLE_VARIABLE
+            value: exampleValue
+        labels:
+          "location": "us-east1"
+        annotations:
+          "managed-function": "true"
+        volumes:
+          - name: cache-volume
+            emptyDir: { }
+      java:
+        jar: /pulsar/dynamic-groovy-script-executor-0.0.1.nar
+        # use "" to read jar from local file system
+        jarLocation: ""
+      clusterName: test-pulsar
+      autoAck: true
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pulsar
+data:
+  webServiceURL: "http://10.152.183.105:8080"
+  brokerServiceURL: "pulsar://10.152.183.105:6650"

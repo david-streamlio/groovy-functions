@@ -1,0 +1,42 @@
+##################################
+# Deployment
+##################################
+className: io.streamnative.functions.groovy.GroovyVersionScriptExecutorFunction
+tenant: public
+namespace: default
+name: groovy-script-executor
+
+##################################
+# Input Topic Configuration
+##################################
+inputs:
+  - persistent://public/default/groovy-scripts
+inputSpecs:
+  "persistent://public/default/groovy-scripts":
+    cryptoConfig:
+      cryptoKeyReaderClassName: "io.streamnative.functions.crypto.RawFileKeyReader"
+      cryptoKeyReaderConfig:
+        "publicKeyFile": "key_c_pubkey.pem"
+        "privateKeyFile": "key_c_privkey.pem"
+      encryptionKeys:
+        - "key_c"
+
+##################################
+# Output Topic Configuration
+##################################
+output: "persistent://public/default/groovy-script-results"
+outputSchemaType: STRING
+
+##################################
+# User Configuration
+##################################
+userConfig:
+  blockedMsgTopic: "persistent://public/default/bad-groovy-scripts"
+
+
+##################################
+# Processing
+##################################
+processingGuarantees: AT_MOST_ONCE
+schemaType: STRING
+logTopic: persistent://public/default/groovy-script-executor-log
