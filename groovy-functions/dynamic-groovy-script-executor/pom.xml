@@ -16,6 +16,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <docker.repo>localhost:32000</docker.repo>
         <json.version>20240303</json.version>
     </properties>
 
@@ -60,6 +61,50 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.45.1</version>
+                <executions>
+                    <!-- Bind docker:build to the package phase -->
+                    <execution>
+                      <id>docker-build</id>
+                      <goals>
+                        <goal>build</goal>
+                      </goals>
+                      <phase>package</phase>
+                    </execution>
+                
+                    <!-- Bind docker:push to the install phase -->
+                    <execution>
+                      <id>docker-push</id>
+                      <goals>
+                        <goal>push</goal>
+                      </goals>
+                      <phase>install</phase>
+                  </execution>
+                </executions>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>${docker.repo}/${artifactId}:${project.version}</name>
+                            <build>
+                                <contextDir>${basedir}/src/main/docker</contextDir>
+                                <assemblies>
+                                    <assembly>
+                                        <descriptorRef>artifact</descriptorRef>
+                                    </assembly>
+                                </assemblies>
+                                <tags>
+                                    <tag>latest</tag>
+                                </tags>
+                            </build>
+                        </image>
+                    </images>
+                    <registry>${docker.repo}</registry>
+                </configuration>
             </plugin>
         </plugins>
     </build>
